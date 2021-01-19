@@ -11,10 +11,11 @@ namespace TD2
     {
         string type;
         int taille;
+        int offset;
         int largeur;
         int longueur;
         int nombreBitsParPixel;
-        byte[] myfile;
+        int[,][] matriceRGB;
 
         /// <summary>
         /// Constructeur de la classe MyImage qui lit un fichier ( .bmp).
@@ -23,12 +24,26 @@ namespace TD2
         public MyImage(string image)
         {
             byte[] myfile = File.ReadAllBytes(image);
-            if (myfile[0] == 6 && myfile[1] == 6 && myfile[2] == 7 && myfile[3] == 7) this.type = "BN";
-            this.taille = myfile[5] * 8 + myfile[4] * 4 + myfile[6] * 2 + myfile[7] * 1;
-            int tailleInfoHeader = myfile[14];
-            this.largeur = myfile[15] + myfile[16] + myfile[17] + myfile[18];
-            this.longueur = myfile[19] + myfile[20] + myfile[21] + myfile[22];
-            this.nombreBitsParPixel = myfile[23] + myfile[24];
+            if (myfile[0] == 66 && myfile[1] == 77) this.type = "BM";
+            this.taille = Convertir_Endian_To_Int(myfile,2,4);
+            this.offset = Convertir_Endian_To_Int(myfile, 10, 4);
+            this.largeur = Convertir_Endian_To_Int(myfile, 18, 4);
+            this.longueur = Convertir_Endian_To_Int(myfile, 22, 4);
+            this.nombreBitsParPixel = Convertir_Endian_To_Int(myfile, 28, 2);
+            this.matriceRGB = new int[this.largeur, this.longueur][];
+            int index1 = 0;
+            int index2 = 0;
+            for (int i = this.offset; i < myfile.Length; i++)
+            {
+                index1 = i % this.largeur;
+                index2 = i / this.largeur;
+                matriceRGB[index1, index2] = new int[3];
+                matriceRGB[index1, index2][0] = myfile[i];
+                i++;
+                matriceRGB[index1, index2][1] = myfile[i];
+                i++;
+                matriceRGB[index1, index2][2] = myfile[i];
+            }
         }
 
         /// <summary>
@@ -37,7 +52,7 @@ namespace TD2
         /// <param name="file"></param>
         public void From_Image_To_File(string file)
         {
-            File.WriteAllBytes(file, this.myfile); //./Images/Sortie.bmp
+            File.WriteAllBytes(file, ); //./Images/Sortie.bmp
         }
 
         /// <summary>
@@ -45,16 +60,16 @@ namespace TD2
         /// </summary>
         /// <param name="tab"> tableau de bits à convertir</param>
         /// <returns></returns>
-        public int Convertir_Endian_To_Int(byte[] tab)
+        public int Convertir_Endian_To_Int(byte[] tab,int debut,int nombre)
         {
-            int somme = 0;
+            double somme = 0;
             int cpt = 0;
-            for (int i = tab.Length - 1; i >= 0; i--)
+            for (int i = debut; i < debut+nombre; i++)
             {
-                somme += tab[i] * 2 ^ (cpt);
+                somme += tab[i] * Math.Pow(256, cpt);
                 cpt++;
             }
-            return somme;
+            return Convert.ToInt32(somme);
         }
 
         /// <summary>
@@ -62,10 +77,26 @@ namespace TD2
         /// </summary>
         /// <param name="val"></param>
         /// <returns></returns>
-        public byte[] Convertir_Int_To_Endian(int val)
+        public byte[] Convertir_Int_To_Endian(int val,int taille)
         {
-            byte[] tab = new byte[];
-            return tab;
+            int test = 0;
+            for(int i=1;i<=taille;i++)
+            {
+                test += Convert.ToInt32(Math.Pow(256, i));
+            }
+            if (test < val) return null;
+            else
+            {
+                byte[] tab = new byte[taille];
+                int i = 0;
+                while (val / 256 != 0)
+                {
+                    taille--;
+                    tab[taille] = Convert.ToByte(val / Convert.ToInt32(Math.Pow(256, taille)));
+                    val -= val % Convert.ToInt32(Math.Pow(256, taille));
+                }
+                return tab;
+            }
         }
     }
 }

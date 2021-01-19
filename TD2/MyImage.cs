@@ -9,6 +9,7 @@ namespace TD2
 {
     class MyImage
     {
+        #region Instance de la classe MyImage
         string type;
         int taille;
         int offset;
@@ -16,7 +17,9 @@ namespace TD2
         int longueur;
         int nombreBitsParPixel;
         int[,][] matriceRGB;
+        #endregion
 
+        #region Constructeur de la classe MyImage
         /// <summary>
         /// Constructeur de la classe MyImage qui lit un fichier ( .bmp).
         /// </summary>
@@ -24,21 +27,29 @@ namespace TD2
         public MyImage(string image)
         {
             byte[] myfile = File.ReadAllBytes(image);
+            
             if (myfile[0] == 66 && myfile[1] == 77) this.type = "BM";
+            
             this.taille = Convertir_Endian_To_Int(myfile,2,4);
+            
             this.offset = Convertir_Endian_To_Int(myfile, 10, 4);
+            
             this.largeur = Convertir_Endian_To_Int(myfile, 18, 4);
+            
             this.longueur = Convertir_Endian_To_Int(myfile, 22, 4);
+            
             this.nombreBitsParPixel = Convertir_Endian_To_Int(myfile, 28, 2);
+            
             this.matriceRGB = new int[this.largeur, this.longueur][];
-            int index1 = 0;
-            int index2 = 0;
+            
+            int index1 = 0;     // premier parametre de la marice
+            int index2 = 0;     // premier parametre de la marice
             int cpt = 0;
             for (int i = this.offset; i < myfile.Length; i++)
             {
                 index1 = cpt % this.largeur;
                 index2 = cpt / this.largeur;
-                this.matriceRGB[index1, index2] = new int[3];
+                this.matriceRGB[index1, index2] = new int[3];   //on definit le tableau RGB et on le remplit.
                 this.matriceRGB[index1, index2][0] = myfile[i];
                 i++;
                 this.matriceRGB[index1, index2][1] = myfile[i];
@@ -48,6 +59,9 @@ namespace TD2
             }
         }
 
+        #endregion
+
+        #region Méthode de la classe MyImage
         /// <summary>
         /// prend une instance de MyImage et la transforme en fichier binaire respectant la structure du fichier.bmp
         /// </summary>
@@ -102,5 +116,6 @@ namespace TD2
                 return tab;
             }
         }
+        #endregion
     }
 }

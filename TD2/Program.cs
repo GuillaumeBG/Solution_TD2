@@ -10,7 +10,9 @@ namespace TD2
     {
         static void Main(string[] args)
         {
-            MyImage image = new MyImage("./Test.bmp");
+            MyImage image = new MyImage("./Images/Test001.bmp");
+            image.From_Image_To_File("./Images/File.bmp");
+            Console.ReadKey();
         }
     }
 }

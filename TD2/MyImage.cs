@@ -17,6 +17,7 @@ namespace TD2
         int longueur;
         int nombreBitsParPixel;
         int[,][] matriceRGB;
+        byte[] header;
         #endregion
 
         #region Constructeur de la classe MyImage
@@ -27,35 +28,48 @@ namespace TD2
         public MyImage(string image)
         {
             byte[] myfile = File.ReadAllBytes(image);
-            
-            if (myfile[0] == 66 && myfile[1] == 77) this.type = "BM";
-            
-            this.taille = Convertir_Endian_To_Int(myfile,2,4);
-            
-            this.offset = Convertir_Endian_To_Int(myfile, 10, 4);
-            
-            this.largeur = Convertir_Endian_To_Int(myfile, 18, 4);
-            
-            this.longueur = Convertir_Endian_To_Int(myfile, 22, 4);
-            
-            this.nombreBitsParPixel = Convertir_Endian_To_Int(myfile, 28, 2);
-            
-            this.matriceRGB = new int[this.largeur, this.longueur][];
-            
-            int index1 = 0;     // premier parametre de la marice
-            int index2 = 0;     // premier parametre de la marice
-            int cpt = 0;
-            for (int i = this.offset; i < myfile.Length; i++)
+
+            if (myfile[0] == 66 && myfile[1] == 77)
             {
-                index1 = cpt % this.largeur;
-                index2 = cpt / this.largeur;
-                this.matriceRGB[index1, index2] = new int[3];   //on definit le tableau RGB et on le remplit.
-                this.matriceRGB[index1, index2][0] = myfile[i];
-                i++;
-                this.matriceRGB[index1, index2][1] = myfile[i];
-                i++;
-                this.matriceRGB[index1, index2][2] = myfile[i];
-                cpt++;
+                this.type = "BM";
+
+                this.taille = Convertir_Endian_To_Int(myfile, 2, 4);
+
+                this.offset = Convertir_Endian_To_Int(myfile, 10, 4);
+
+                this.largeur = Convertir_Endian_To_Int(myfile, 18, 4);
+
+                this.longueur = Convertir_Endian_To_Int(myfile, 22, 4);
+
+                if (this.largeur % 4 == 0 && this.longueur % 4 == 0)
+                {
+                    this.nombreBitsParPixel = Convertir_Endian_To_Int(myfile, 28, 2);
+
+                    this.matriceRGB = new int[this.largeur, this.longueur][];
+
+                    this.header = new byte[this.offset];
+
+                    for (int i = 0; i < this.offset; i++)
+                    {
+                        this.header[i] = myfile[i];
+                    }
+
+                    int index1 = 0;     // premier parametre de la marice
+                    int index2 = 0;     // premier parametre de la marice
+                    int cpt = 0;
+                    for (int i = this.offset; i < this.taille; i++)
+                    {
+                        index1 = cpt % this.largeur;
+                        index2 = cpt / this.largeur;
+                        this.matriceRGB[index1, index2] = new int[3];   //on definit le tableau RGB et on le remplit.
+                        this.matriceRGB[index1, index2][0] = myfile[i];
+                        i++;
+                        this.matriceRGB[index1, index2][1] = myfile[i];
+                        i++;
+                        this.matriceRGB[index1, index2][2] = myfile[i];
+                        cpt++;
+                    }
+                }
             }
         }
 
@@ -65,10 +79,28 @@ namespace TD2
         /// <summary>
         /// prend une instance de MyImage et la transforme en fichier binaire respectant la structure du fichier.bmp
         /// </summary>
-        /// <param name="file"></param>
+        /// <param name="file">Emplacement du fichier en sortie</param>
         public void From_Image_To_File(string file)
         {
-            //File.WriteAllBytes(file, ); //./Images/Sortie.bmp
+            byte[] bytes = new byte[this.taille];
+            int index = 0;
+            for (int i = 0; i < this.offset; i++)
+            {
+                bytes[index] = this.header[i];
+                index++;
+            }
+            for (int i = 0; i < this.matriceRGB.GetLength(0); i++)
+            {
+                for (int j = 0; j < this.matriceRGB.GetLength(1); j++)
+                {
+                    for(int a = 0; a < 3; a++)
+                    {
+                        bytes[index] = Convert.ToByte(matriceRGB[i, j][a]);
+                        index++;
+                    }
+                }
+            }
+            File.WriteAllBytes(file,bytes); //./Images/Sortie.bmp
         }
 
         /// <summary>

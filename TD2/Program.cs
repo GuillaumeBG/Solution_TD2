@@ -10,7 +10,7 @@ namespace TD2
     {
         static void Main(string[] args)
         {
-
+            MyImage image = new MyImage("./Images/Test.bmp");
         }
     }
 }

@@ -60,7 +60,9 @@ namespace TD2
         /// <summary>
         /// Convertit une séquence d’octets au format little endian en entier.
         /// </summary>
-        /// <param name="tab"> tableau de bits à convertir</param>
+        /// <param name="tab">tableau à convertir</param>
+        /// <param name="debut">place dans le tableau,de 1 à..., du début de la sequence à decoder </param>
+        /// <param name="nombre">nombre d'octect à décoder</param>
         /// <returns></returns>
         public int Convertir_Endian_To_Int(byte[] tab,int debut,int nombre)
         {
@@ -77,7 +79,8 @@ namespace TD2
         /// <summary>
         /// convertit un entier en séquence d’octets au format little endian.
         /// </summary>
-        /// <param name="val"></param>
+        /// <param name="val">valeur à convertir</param>
+        /// <param name="taille">nombre d'octect sur lequel transcrire la valeur</param>
         /// <returns></returns>
         public byte[] Convertir_Int_To_Endian(int val,int taille)
         {

@@ -33,16 +33,18 @@ namespace TD2
             this.matriceRGB = new int[this.largeur, this.longueur][];
             int index1 = 0;
             int index2 = 0;
+            int cpt = 0;
             for (int i = this.offset; i < myfile.Length; i++)
             {
-                index1 = i % this.largeur;
-                index2 = i / this.largeur;
-                matriceRGB[index1, index2] = new int[3];
-                matriceRGB[index1, index2][0] = myfile[i];
+                index1 = cpt % this.largeur;
+                index2 = cpt / this.largeur;
+                this.matriceRGB[index1, index2] = new int[3];
+                this.matriceRGB[index1, index2][0] = myfile[i];
                 i++;
-                matriceRGB[index1, index2][1] = myfile[i];
+                this.matriceRGB[index1, index2][1] = myfile[i];
                 i++;
-                matriceRGB[index1, index2][2] = myfile[i];
+                this.matriceRGB[index1, index2][2] = myfile[i];
+                cpt++;
             }
         }
 
@@ -52,7 +54,7 @@ namespace TD2
         /// <param name="file"></param>
         public void From_Image_To_File(string file)
         {
-            File.WriteAllBytes(file, ); //./Images/Sortie.bmp
+            //File.WriteAllBytes(file, ); //./Images/Sortie.bmp
         }
 
         /// <summary>
@@ -88,7 +90,6 @@ namespace TD2
             else
             {
                 byte[] tab = new byte[taille];
-                int i = 0;
                 while (val / 256 != 0)
                 {
                     taille--;

@@ -73,6 +73,61 @@ namespace TD2
             }
         }
 
+        /// <summary>
+        /// Constructeur de la classe Image à partir d'un header seulement
+        /// </summary>
+        /// <param name="header"></param>
+        public MyImage(byte[] header)
+        {
+            this.header = header;
+            if (header[0] == 66 && header[1] == 77)
+            {
+                this.type = "BM";
+
+                this.taille = Convertir_Endian_To_Int(header, 2, 4);
+
+                this.offset = Convertir_Endian_To_Int(header, 10, 4);
+
+                this.largeur = Convertir_Endian_To_Int(header, 18, 4);
+
+                this.longueur = Convertir_Endian_To_Int(header, 22, 4);
+
+                if (this.largeur % 4 == 0 && this.longueur % 4 == 0)
+                {
+                    this.nombreBitsParPixel = Convertir_Endian_To_Int(header, 28, 2);
+                }
+            }
+            this.matriceRGB = new int[this.largeur, this.longueur][];
+        }
+
+        /// <summary>
+        /// Constructeur de la classe Image à partir d'un header et d'une matrice de pixels RGB
+        /// </summary>
+        /// <param name="header"></param>
+        /// <param name="matriceRGB"></param>
+        public MyImage(byte[] header,int[,][] matriceRGB)
+        {
+            this.header = header;
+            if (header[0] == 66 && header[1] == 77)
+            {
+                this.type = "BM";
+
+                this.taille = Convertir_Endian_To_Int(header, 2, 4);
+
+                this.offset = Convertir_Endian_To_Int(header, 10, 4);
+
+                this.largeur = Convertir_Endian_To_Int(header, 18, 4);
+
+                this.longueur = Convertir_Endian_To_Int(header, 22, 4);
+
+                if (this.largeur % 4 == 0 && this.longueur % 4 == 0)
+                {
+                    this.nombreBitsParPixel = Convertir_Endian_To_Int(header, 28, 2);
+                }
+            }
+            this.matriceRGB = matriceRGB;
+        }
+
         #endregion
 
         #region Méthode de la classe MyImage
